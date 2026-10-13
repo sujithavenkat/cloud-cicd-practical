@@ -1,13 +1,135 @@
-
+```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Cloud CI/CD Practical</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Information System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            text-align: center;
+            padding: 80px 15px;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+            padding: 30px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #cccccc;
+        }
+
+        h1 {
+            color: #333333;
+            font-size: 26px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 25px;
+            text-align: left;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Welcome to Automated CI/CD!</h1>
-    <p>Application deployed using Docker and GitHub Actions.</p>
-    <p>Cloud Computing Lab Experiment</p>
+
+    <div class="container">
+        <h1>Student Information</h1>
+        <p>Student Information System</p>
+        <h1>Updated Application - CI/CD Successful!</h1>
+        <button id="getDetailsBtn" onclick="getStudentDetails()">
+            Get Student Details
+        </button>
+
+        <div id="result" aria-live="polite"></div>
+    </div>
+
+    <script>
+        async function getStudentDetails() {
+            const result = document.getElementById("result");
+            const button = document.getElementById("getDetailsBtn");
+
+            result.textContent = "Loading student details...";
+            result.className = "";
+            button.disabled = true;
+
+            try {
+                const response = await fetch("/student");
+
+                if (!response.ok) {
+                    throw new Error("HTTP error: " + response.status);
+                }
+
+                const data = await response.json();
+
+                if (
+                    !data ||
+                    typeof data.name !== "string" ||
+                    typeof data.department !== "string" ||
+                    (typeof data.year !== "string" &&
+                     typeof data.year !== "number")
+                ) {
+                    throw new Error("Invalid student data received.");
+                }
+
+                result.replaceChildren();
+
+                const details = [
+                    ["Name:", data.name],
+                    ["Department:", data.department],
+                    ["Year:", data.year]
+                ];
+
+                details.forEach(([label, value]) => {
+                    const line = document.createElement("div");
+                    const strong = document.createElement("strong");
+
+                    strong.textContent = label + " ";
+                    line.appendChild(strong);
+                    line.appendChild(document.createTextNode(String(value)));
+
+                    result.appendChild(line);
+                });
+
+            } catch (error) {
+                result.className = "error";
+                result.textContent =
+                    "Unable to retrieve student details. Check whether the backend is running.";
+                console.error("Error:", error);
+            } finally {
+                button.disabled = false;
+            }
+        }
+    </script>
+
 </body>
 </html>
-
+```
